@@ -1,0 +1,14 @@
+{
+	// Rust: save on format
+	"[rust]": {
+		"editor.formatOnSave": true,
+		"editor.formatOnPaste": true,
+		"editor.defaultFormatter": "matklad.rust-analyzer",
+	},
+	// Rust Analyzer config
+	"rust-analyzer.experimental.procAttrMacros": true,
+	"rust-analyzer.cargo.target": "wasm32-unknown-unknown",
+	// VS Code config
+	"files.eol": "\n",
+	"files.insertFinalNewline": true,
+}
