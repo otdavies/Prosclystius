@@ -1,4 +1,4 @@
-use crate::constants::GRID_DIRECTIONS;
+use crate::{cell::Cell, constants::GRID_DIRECTIONS};
 
 pub struct Possibility {
 	pub constraints: [u128; GRID_DIRECTIONS],
@@ -24,6 +24,10 @@ impl Possibility {
 
 	pub fn intersection_value(&mut self, value: u128, direction: usize) {
 		self.constraints[direction] &= value;
+	}
+
+	pub fn get_constraint(&self, direction: usize) -> u128 {
+		return self.constraints[direction];
 	}
 
 	pub fn to_string(&self) -> String {

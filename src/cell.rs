@@ -1,20 +1,13 @@
-use crate::constants::GRID_DIRECTIONS;
-use crate::possibility::Possibility;
-use std::collections::HashSet;
-
 pub struct Cell {
 	// u128 represents all the possible unique states (up to 128) the Cell can be in
 	pub super_position: u128,
-	// the union of constrains of remaining super positions in each direction
-	pub constraints: [u128; GRID_DIRECTIONS],
 }
 
 impl Cell {
-	pub fn new(possability_count: u8) -> Self {
+	pub fn new() -> Self {
 		Self {
 			// All positions
 			super_position: u128::MAX,
-			constraints: [0; GRID_DIRECTIONS],
 		}
 	}
 
@@ -55,7 +48,7 @@ impl Cell {
 
 #[test]
 fn cell_sanity_checks() {
-	let mut cell: Cell = Cell::new(4);
+	let mut cell: Cell = Cell::new();
 	let constraints: [u128; 4] = [1 << 8, 1 << 4, 1 << 2, 1 << 0];
 	cell.constrain(&constraints);
 	assert_eq!(format!("{:b}", cell.super_position), "100010101");
