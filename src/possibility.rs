@@ -1,12 +1,14 @@
-use crate::{cell::Cell, constants::GRID_DIRECTIONS};
+use crate::{cell::Cell, constants::GRID_DIRECTION_COUNT};
 
 pub struct Possibility {
-	pub constraints: [u128; GRID_DIRECTIONS],
+	pub constraints: [u128; GRID_DIRECTION_COUNT],
 }
 
 impl Possibility {
 	pub fn new() -> Self {
-		Self { constraints: [0; GRID_DIRECTIONS] }
+		Self {
+			constraints: [0; GRID_DIRECTION_COUNT],
+		}
 	}
 
 	pub fn union(&mut self, other: &Possibility, direction: usize) {

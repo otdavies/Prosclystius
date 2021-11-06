@@ -2,6 +2,7 @@ use crate::{
 	cell::Cell,
 	constants::{DIRECTION_DOWN, DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_UP, GRID_SIZE},
 	possibility::Possibility,
+	BOUND_CHECK,
 };
 use std::collections::HashMap;
 
@@ -50,13 +51,12 @@ impl PossibilitySpace {
 
 fn calculate_possibilities(example: [[u8; GRID_SIZE]; GRID_SIZE], size: usize) -> HashMap<u8, Possibility> {
 	let mut possibilities: HashMap<u8, Possibility> = HashMap::with_capacity(size + 1);
-	let bound_check = |x: i32, y: i32| x >= 0 && x < GRID_SIZE as i32 && y >= 0 && y < GRID_SIZE as i32;
 
 	// Accumulate possibilities
-	for x in 0..size {
-		let x_i32 = x as i32;
-		for y in 0..size {
-			let y_i32 = y as i32;
+	for y in 0..size {
+		let y_i32 = y as i32;
+		for x in 0..size {
+			let x_i32 = x as i32;
 			let e = example[x][y];
 			if !possibilities.contains_key(&e) {
 				println!("Creating possibility for {}", e);
@@ -64,21 +64,21 @@ fn calculate_possibilities(example: [[u8; GRID_SIZE]; GRID_SIZE], size: usize) -
 			}
 			let p: &mut Possibility = possibilities.get_mut(&e).unwrap();
 
-			// Up
-			if bound_check(x_i32, y_i32 + 1) {
-				p.union_value(1 << example[x][y + 1], DIRECTION_UP);
-			}
 			// Right
-			if bound_check(x_i32 + 1, y_i32) {
-				p.union_value(1 << example[x + 1][y], DIRECTION_RIGHT)
+			if BOUND_CHECK!(x_i32, y_i32 + 1) {
+				p.union_value(1 << example[x][y + 1], DIRECTION_RIGHT);
 			}
 			// Down
-			if bound_check(x_i32, y_i32 - 1) {
-				p.union_value(1 << example[x][y - 1], DIRECTION_DOWN)
+			if BOUND_CHECK!(x_i32 + 1, y_i32) {
+				p.union_value(1 << example[x + 1][y], DIRECTION_DOWN)
 			}
 			// Left
-			if bound_check(x_i32 - 1, y_i32) {
-				p.union_value(1 << example[x - 1][y], DIRECTION_LEFT)
+			if BOUND_CHECK!(x_i32, y_i32 - 1) {
+				p.union_value(1 << example[x][y - 1], DIRECTION_LEFT)
+			}
+			// Up
+			if BOUND_CHECK!(x_i32 - 1, y_i32) {
+				p.union_value(1 << example[x - 1][y], DIRECTION_UP)
 			}
 		}
 	}
