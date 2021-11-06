@@ -29,11 +29,11 @@ impl Cell {
 			identity = 127;
 		}
 
-		if identity == 0 {
-			self.super_position = 0;
-			println!("{:b}", self.super_position);
-			return;
-		}
+		// if identity == 0 {
+		// 	self.super_position = 0;
+		// 	println!("Super position is {:b}", self.super_position);
+		// 	return;
+		// }
 
 		self.super_position &= 1 << identity;
 		// let out = 128 - self.super_position.leading_zeros() - 1; // may not work
