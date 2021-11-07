@@ -1,6 +1,6 @@
 use crate::{
 	cell::Cell,
-	constants::{DIRECTION_DOWN, DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_UP, GRID_SIZE},
+	constants::{DIRECTION_DOWN, DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_UP, GRID_DIRECTION_COUNT, GRID_SIZE},
 	possibility::Possibility,
 	BOUND_CHECK,
 };
@@ -43,6 +43,19 @@ impl PossibilitySpace {
 			if super_position & (1 << i) > 0 {
 				let possibility = self.possibilities.get(&(i as u8)).unwrap();
 				result |= possibility.get_constraint(direction);
+			}
+		}
+		return result;
+	}
+
+	pub fn collect_all(&self, super_position: u128) -> [u128; GRID_DIRECTION_COUNT] {
+		let mut result: [u128; GRID_DIRECTION_COUNT];
+		for i in 0..self.variations {
+			if super_position & (1 << i) > 0 {
+				let possibility = self.possibilities.get(&(i as u8)).unwrap();
+				for j in 0..GRID_DIRECTION_COUNT {
+					result[j] |= possibility.get_constraint(j);
+				}
 			}
 		}
 		return result;

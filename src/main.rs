@@ -20,14 +20,40 @@ fn main() {
 
 	let possibilities = PossibilitySpace::new(example, 4);
 
-	let mut cell = &mut world[0][0];
-	println!("{}", cell.print());
-	cell.collapse(0);
-	println!("{}", cell.print());
-	cell.super_position = possibilities.collect(cell.super_position, DIRECTION_RIGHT);
-	println!(" -> {}", cell.print());
+	// let mut cell = &mut world[0][0];
+	// println!("{}", cell.print());
+	// cell.collapse(0);
+	// println!("{}", cell.print());
+	// cell.super_position = possibilities.collect(cell.super_position, DIRECTION_RIGHT);
+	// println!(" -> {}", cell.print());
+	// println!("{}", cell.dirty);
 
-	println!("{}", BOUND_CHECK!(2, 0));
+	// Let's collapse a corner
+	world[0][0].collapse(1);
+
+	// println!("{}", );
+	let mut stack = Vec::new();
+	stack.push((0, 0));
+	while (stack.len() > 0) {
+		let coord = stack.pop().unwrap();
+		let cell = &world[coord.0][coord.1];
+		let constraints = possibilities.collect_all(cell.super_position);
+		if cell.dirty {
+			if BOUND_CHECK!(coord.0 + 1, coord.1) {
+				stack.push((coord.0 + 1, coord.1));
+			}
+			if BOUND_CHECK!(coord.0 - 1, coord.1) {
+				stack.push((coord.0 - 1, coord.1));
+			}
+			if BOUND_CHECK!(coord.0, coord.1 + 1) {
+				stack.push((coord.0, coord.1 + 1));
+			}
+			if BOUND_CHECK!(coord.0, coord.1 - 1) {
+				stack.push((coord.0, coord.1 - 1));
+			}
+			cell.dirty = false;
+		}
+	}
 
 	// println!("{}", possibilities.print());
 

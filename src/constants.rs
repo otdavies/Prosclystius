@@ -13,3 +13,10 @@ macro_rules! BOUND_CHECK {
 		($x >= 0) && ($x < GRID_SIZE as i32) && ($y >= 0) && ($y < GRID_SIZE as i32);
 	};
 }
+
+#[macro_export]
+macro_rules! ONE_TO_TWO_INDEX {
+	($x:expr) => {
+		// GRID_SIZE * $x + ;
+	};
+}
