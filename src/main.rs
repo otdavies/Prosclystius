@@ -4,11 +4,9 @@ mod possibility;
 mod possibility_space;
 
 use cell::Cell;
-use constants::DIRECTION_DOWN;
-use constants::DIRECTION_LEFT;
-use constants::DIRECTION_RIGHT;
-use constants::DIRECTION_UP;
+use constants::DIMENSIONS;
 use constants::GRID_SIZE;
+use constants::LEGAL_DIRECTION;
 use possibility_space::PossibilitySpace;
 
 fn main() {
@@ -34,24 +32,19 @@ fn main() {
 	// println!("{}", );
 	let mut stack = Vec::new();
 	stack.push((0, 0));
-	while (stack.len() > 0) {
-		let coord = stack.pop().unwrap();
-		let cell = &world[coord.0][coord.1];
-		let constraints = possibilities.collect_all(cell.super_position);
-		if cell.dirty {
-			if BOUND_CHECK!(coord.0 + 1, coord.1) {
-				stack.push((coord.0 + 1, coord.1));
+	while stack.len() > 0 {
+		let (x, y) = stack.pop().unwrap();
+		let super_position = world[x][y].super_position;
+		for i in 0..DIMENSIONS {
+			let (safe, pos) = LEGAL_DIRECTION(i, x, y);
+			if safe {
+				let neighbor = &mut world[pos.0][pos.1];
+				println!("Constraining ({}, {}):{}", x, y, neighbor.print());
+				neighbor.constrain(possibilities.collect(super_position, i));
+				if neighbor.dirty {
+					stack.push(pos);
+				}
 			}
-			if BOUND_CHECK!(coord.0 - 1, coord.1) {
-				stack.push((coord.0 - 1, coord.1));
-			}
-			if BOUND_CHECK!(coord.0, coord.1 + 1) {
-				stack.push((coord.0, coord.1 + 1));
-			}
-			if BOUND_CHECK!(coord.0, coord.1 - 1) {
-				stack.push((coord.0, coord.1 - 1));
-			}
-			cell.dirty = false;
 		}
 	}
 

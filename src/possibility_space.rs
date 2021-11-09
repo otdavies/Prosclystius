@@ -1,8 +1,6 @@
 use crate::{
-	cell::Cell,
-	constants::{DIRECTION_DOWN, DIRECTION_LEFT, DIRECTION_RIGHT, DIRECTION_UP, GRID_DIRECTION_COUNT, GRID_SIZE},
+	constants::{DIMENSIONS, GRID_SIZE, LEGAL_DIRECTION},
 	possibility::Possibility,
-	BOUND_CHECK,
 };
 use std::collections::HashMap;
 
@@ -48,50 +46,38 @@ impl PossibilitySpace {
 		return result;
 	}
 
-	pub fn collect_all(&self, super_position: u128) -> [u128; GRID_DIRECTION_COUNT] {
-		let mut result: [u128; GRID_DIRECTION_COUNT];
-		for i in 0..self.variations {
-			if super_position & (1 << i) > 0 {
-				let possibility = self.possibilities.get(&(i as u8)).unwrap();
-				for j in 0..GRID_DIRECTION_COUNT {
-					result[j] |= possibility.get_constraint(j);
-				}
-			}
-		}
-		return result;
-	}
+	// pub fn collect_all(&self, super_position: u128) -> [u128; GRID_DIRECTION_COUNT] {
+	// 	let mut result: [u128; GRID_DIRECTION_COUNT];
+	// 	for i in 0..self.variations {
+	// 		if super_position & (1 << i) > 0 {
+	// 			let possibility = self.possibilities.get(&(i as u8)).unwrap();
+	// 			for j in 0..GRID_DIRECTION_COUNT {
+	// 				result[j] |= possibility.get_constraint(j);
+	// 			}
+	// 		}
+	// 	}
+	// 	return result;
+	// }
 }
 
-fn calculate_possibilities(example: [[u8; GRID_SIZE]; GRID_SIZE], size: usize) -> HashMap<u8, Possibility> {
-	let mut possibilities: HashMap<u8, Possibility> = HashMap::with_capacity(size + 1);
+fn calculate_possibilities(example: [[u8; GRID_SIZE]; GRID_SIZE], variation_count: usize) -> HashMap<u8, Possibility> {
+	let mut possibilities: HashMap<u8, Possibility> = HashMap::with_capacity(variation_count + 1);
 
 	// Accumulate possibilities
-	for y in 0..size {
-		let y_i32 = y as i32;
-		for x in 0..size {
-			let x_i32 = x as i32;
+	for y in 0..GRID_SIZE {
+		for x in 0..GRID_SIZE {
 			let e = example[x][y];
 			if !possibilities.contains_key(&e) {
 				println!("Creating possibility for {}", e);
 				possibilities.insert(e, Possibility::new());
 			}
-			let p: &mut Possibility = possibilities.get_mut(&e).unwrap();
 
-			// Right
-			if BOUND_CHECK!(x_i32, y_i32 + 1) {
-				p.union_value(1 << example[x][y + 1], DIRECTION_RIGHT);
-			}
-			// Down
-			if BOUND_CHECK!(x_i32 + 1, y_i32) {
-				p.union_value(1 << example[x + 1][y], DIRECTION_DOWN)
-			}
-			// Left
-			if BOUND_CHECK!(x_i32, y_i32 - 1) {
-				p.union_value(1 << example[x][y - 1], DIRECTION_LEFT)
-			}
-			// Up
-			if BOUND_CHECK!(x_i32 - 1, y_i32) {
-				p.union_value(1 << example[x - 1][y], DIRECTION_UP)
+			let p: &mut Possibility = possibilities.get_mut(&e).unwrap();
+			for i in 0..DIMENSIONS {
+				let (safe, (_x, _y)) = LEGAL_DIRECTION(i, x, y);
+				if safe {
+					p.union_value(1 << example[_x][_y], i);
+				}
 			}
 		}
 	}

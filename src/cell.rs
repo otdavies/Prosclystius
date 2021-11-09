@@ -18,7 +18,7 @@ impl Cell {
 		}
 	}
 
-	pub fn constrain(&mut self, neighbor_constraints: &[u128]) {
+	pub fn constrain_multiple(&mut self, neighbor_constraints: &[u128]) {
 		let previous_state = self.super_position;
 		let mut unioned_constraints: u128 = 0;
 		for constraint in neighbor_constraints {
@@ -26,7 +26,20 @@ impl Cell {
 		}
 		self.super_position &= unioned_constraints;
 		self.dirty = previous_state != self.super_position;
-		self.remaining_variations = self.super_position.count_ones();
+
+		if self.dirty {
+			self.remaining_variations = self.super_position.count_ones();
+		}
+	}
+
+	pub fn constrain(&mut self, neighbor_constraint: u128) {
+		let previous_state = self.super_position;
+		self.super_position &= neighbor_constraint;
+		self.dirty = previous_state != self.super_position;
+
+		if self.dirty {
+			self.remaining_variations = self.super_position.count_ones();
+		}
 	}
 
 	// Collapse the possibility space to a single outcome
@@ -64,10 +77,10 @@ impl Cell {
 fn cell_sanity_checks() {
 	let mut cell: Cell = Cell::new(9);
 	let constraints: [u128; 4] = [1 << 8, 1 << 4, 1 << 2, 1 << 0];
-	cell.constrain(&constraints);
+	cell.constrain_multiple(&constraints);
 	assert_eq!(format!("{:b}", cell.super_position), "100010101");
-	assert_eq!(cell.get_entropy(), 4.0 / cell.remaining_variations as f32);
+	assert_eq!(cell.get_entropy(), 4.0 / cell.total_variations as f32);
 	cell.collapse(8);
 	assert_eq!(format!("{:b}", cell.super_position), "100000000");
-	assert_eq!(cell.get_entropy(), 1.0 / cell.remaining_variations as f32);
+	assert_eq!(cell.get_entropy(), 1.0 / cell.total_variations as f32);
 }
