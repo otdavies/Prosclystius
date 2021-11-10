@@ -1,4 +1,4 @@
-use crate::{cell::Cell, constants::DIMENSIONS};
+use crate::{app::solver::cell::Cell, app::solver::constants::DIMENSIONS};
 
 pub struct Possibility {
 	pub constraints: [u128; DIMENSIONS],
@@ -33,7 +33,7 @@ impl Possibility {
 	pub fn to_string(&self) -> String {
 		return format!(
 			"   {:b}  \n{:b}  X  {:b}\n   {:b}  ",
-			self.constraints[3], self.constraints[2], self.constraints[0], self.constraints[1],
+			self.constraints[0], self.constraints[1], self.constraints[2], self.constraints[3],
 		);
 	}
 

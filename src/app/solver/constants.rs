@@ -9,7 +9,7 @@ pub enum DIRECTION {
 	LEFT = 3,
 }
 
-pub const DIRECTION_TO_VEC: [(i32, i32); 4] = [(-1, 0), (0, 1), (1, 0), (0, -1)];
+pub const DIRECTION_TO_VEC: [(i32, i32); 4] = [(0, -1), (-1, 0), (0, 1), (1, 0)];
 
 pub const fn BOUND_CHECK(x: i32, y: i32) -> bool {
 	(x >= 0) && (x < GRID_SIZE as i32) && (y >= 0) && (y < GRID_SIZE as i32)

@@ -43,8 +43,14 @@ impl Cell {
 	}
 
 	// Collapse the possibility space to a single outcome
-	pub fn collapse(&mut self, mut identity: u32) {
+	pub fn collapse(&mut self, mut identity: u32) -> bool {
 		let previous_state = self.super_position;
+
+		if self.super_position & 1 << identity < 1 {
+			println!("Not a legal constraint!");
+			return false;
+		}
+
 		if identity > 127 {
 			identity = 127;
 		}
@@ -52,6 +58,7 @@ impl Cell {
 		self.super_position &= 1 << identity;
 		self.dirty = previous_state != self.super_position;
 		self.remaining_variations = 1;
+		return true;
 	}
 
 	pub fn collapse_random(&mut self) {}
