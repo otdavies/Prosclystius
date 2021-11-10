@@ -11,7 +11,7 @@ impl Cell {
 		let v = if variations < 128 { variations } else { 127 };
 		Self {
 			// All positions
-			super_position: u128::MAX,
+			super_position: (1 << variations) - 1,
 			total_variations: v,
 			remaining_variations: v,
 			dirty: false,
@@ -32,9 +32,9 @@ impl Cell {
 		}
 	}
 
-	pub fn constrain(&mut self, neighbor_constraint: u128) {
+	pub fn constrain(&mut self, constraint: u128) {
 		let previous_state = self.super_position;
-		self.super_position &= neighbor_constraint;
+		self.super_position &= constraint;
 		self.dirty = previous_state != self.super_position;
 
 		if self.dirty {
@@ -58,8 +58,8 @@ impl Cell {
 
 	pub fn print(&self) -> String {
 		let mut result = String::new();
-		for v in 0..self.remaining_variations {
-			if self.super_position & (1 << v) > 0 {
+		for v in 0..self.total_variations {
+			if (self.super_position & (1 << v)) > 0 {
 				result.push_str(&v.to_string());
 			}
 		}

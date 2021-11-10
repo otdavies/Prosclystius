@@ -43,6 +43,9 @@ impl PossibilitySpace {
 				result |= possibility.get_constraint(direction);
 			}
 		}
+		if result < 1 {
+			println!("Result is zero, this isn't legal");
+		}
 		return result;
 	}
 

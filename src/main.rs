@@ -15,21 +15,21 @@ fn main() {
 
 	// Example of what a potential "world" could look like
 	let example: [[u8; GRID_SIZE]; GRID_SIZE] = [[1, 2, 2, 1], [1, 3, 3, 1], [1, 3, 0, 1], [1, 2, 2, 1]];
+	/*
+		[1, 2, 2, 1],
+		[1, 3, 3, 1],
+		[1, 3, 0, 1],
+		[1, 2, 2, 1]
+	*/
 
+	println!("--- Setup ---");
+	// Define learned possibilities
 	let possibilities = PossibilitySpace::new(example, 4);
 
-	// let mut cell = &mut world[0][0];
-	// println!("{}", cell.print());
-	// cell.collapse(0);
-	// println!("{}", cell.print());
-	// cell.super_position = possibilities.collect(cell.super_position, DIRECTION_RIGHT);
-	// println!(" -> {}", cell.print());
-	// println!("{}", cell.dirty);
-
+	println!("--- Solve ---");
 	// Let's collapse a corner
 	world[0][0].collapse(1);
 
-	// println!("{}", );
 	let mut stack = Vec::new();
 	stack.push((0, 0));
 	while stack.len() > 0 {
@@ -39,16 +39,21 @@ fn main() {
 			let (safe, pos) = LEGAL_DIRECTION(i, x, y);
 			if safe {
 				let neighbor = &mut world[pos.0][pos.1];
-				println!("Constraining ({}, {}):{}", x, y, neighbor.print());
-				neighbor.constrain(possibilities.collect(super_position, i));
+				let constraint = possibilities.collect(super_position, i);
+				neighbor.constrain(constraint);
+				// println!("Constraining ({}, {}):{}", pos.0, pos.1, neighbor.print());
 				if neighbor.dirty {
 					stack.push(pos);
+					neighbor.dirty = false;
 				}
 			}
 		}
 	}
 
-	// println!("{}", possibilities.print());
-
-	// Collapse and propagate
+	for x in 0..GRID_SIZE {
+		for y in 0..GRID_SIZE {
+			print!("{} ", world[x][y].print());
+		}
+		println!("");
+	}
 }
