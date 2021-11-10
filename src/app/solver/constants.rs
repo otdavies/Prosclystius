@@ -2,13 +2,6 @@
 pub const GRID_SIZE: usize = 4;
 pub const DIMENSIONS: usize = 4;
 
-pub enum DIRECTION {
-	UP = 0,
-	RIGHT = 1,
-	DOWN = 2,
-	LEFT = 3,
-}
-
 pub const DIRECTION_TO_VEC: [(i32, i32); 4] = [(0, -1), (-1, 0), (0, 1), (1, 0)];
 
 pub const fn BOUND_CHECK(x: i32, y: i32) -> bool {
