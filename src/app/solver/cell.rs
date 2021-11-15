@@ -96,6 +96,10 @@ impl Cell {
 	pub fn get_entropy(&self) -> f32 {
 		return (self.remaining_variations as f32 - 1.0) / (self.total_variations as f32 - 1.0);
 	}
+
+	pub fn get_stable_value(&self) -> u8 {
+		return self.super_position.trailing_zeros() as u8;
+	}
 }
 
 #[test]

@@ -1,6 +1,6 @@
 // Constants
 pub const GRID_SIZE: usize = 6;
-pub const VARIATIONS: usize = 10;
+pub const VARIATIONS: usize = 16;
 pub const DIMENSIONS: usize = 4;
 
 pub const DIRECTION_TO_VEC: [(i32, i32); 4] = [(0, -1), (-1, 0), (0, 1), (1, 0)];

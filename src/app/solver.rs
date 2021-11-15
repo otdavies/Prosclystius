@@ -19,9 +19,6 @@ pub struct Solver {
 
 impl Solver {
 	pub fn new() -> Self {
-		// TODO move this into a param, this is just for testing
-		// let example: [[u8; GRID_SIZE]; GRID_SIZE] = [[1, 2, 2, 1], [1, 3, 3, 1], [1, 3, 0, 1], [1, 2, 2, 1]];
-
 		Self {
 			world: None,
 			possibilities: None,
