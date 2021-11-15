@@ -1,5 +1,5 @@
 mod cell;
-mod constants;
+pub(crate) mod constants;
 mod possibility;
 mod possibility_space;
 
@@ -11,21 +11,48 @@ use constants::LEGAL_DIRECTION;
 use possibility_space::PossibilitySpace;
 
 pub struct Solver {
-	pub world: [[Cell; GRID_SIZE]; GRID_SIZE],
-	possibilities: PossibilitySpace,
+	pub world: Option<[[Cell; GRID_SIZE]; GRID_SIZE]>,
+	possibilities: Option<PossibilitySpace>,
+	lowest_entropy: (f32, usize, usize),
+	trained: bool,
 }
 
 impl Solver {
 	pub fn new() -> Self {
 		// TODO move this into a param, this is just for testing
-		let example: [[u8; GRID_SIZE]; GRID_SIZE] = [[1, 2, 2, 1], [1, 3, 3, 1], [1, 3, 0, 1], [1, 2, 2, 1]];
+		// let example: [[u8; GRID_SIZE]; GRID_SIZE] = [[1, 2, 2, 1], [1, 3, 3, 1], [1, 3, 0, 1], [1, 2, 2, 1]];
+
 		Self {
-			world: [0; GRID_SIZE].map(|_| [0; GRID_SIZE].map(|_| Cell::new(4))),
-			possibilities: PossibilitySpace::new(example, 4),
+			world: None,
+			possibilities: None,
+			lowest_entropy: (1.0, 0, 0),
+			trained: false,
 		}
 	}
 
+	pub fn train(&mut self, example: &[[u8; GRID_SIZE]; GRID_SIZE], variations: u32) {
+		self.world = Some([0; GRID_SIZE].map(|_| [0; GRID_SIZE].map(|_| Cell::new(variations))));
+		self.possibilities = Some(PossibilitySpace::new(example, variations));
+		self.trained = true;
+	}
+
+	pub fn is_trained(&self) -> bool {
+		return self.trained;
+	}
+
+	pub fn world_width(&self) -> usize {
+		return self.world.as_ref().unwrap().len();
+	}
+
+	pub fn get_cell(&self, x: usize, y: usize) -> &Cell {
+		let world = self.world.as_ref().unwrap();
+		return &world[x][y];
+	}
+
 	pub fn propagate(&mut self, px: usize, py: usize, identity: u32) {
+		let world = self.world.as_mut().unwrap();
+		let possibilities = &self.possibilities.as_mut().unwrap();
+
 		// Make sure we are within the bounds
 		if !BOUND_CHECK(px as i32, py as i32) {
 			println!("Out of bounds!");
@@ -33,26 +60,30 @@ impl Solver {
 		}
 
 		// Make sure this isn't already  collapsed
-		if self.world[px][py].remaining_variations == 1 {
+		if world[px][py].remaining_variations == 1 {
 			println!("Already collapsed!");
 			return;
 		}
 
 		// Attempt to collapse and propagate changes therein
-		if self.world[px][py].collapse(identity) {
+		if world[px][py].collapse(identity) {
 			let mut stack = Vec::new();
 			stack.push((px, py));
 			while stack.len() > 0 {
 				// Get the coordinates of the cell we are currently working on
 				let (x, y) = stack.pop().unwrap();
-				let super_position = self.world[x][y].super_position;
+				let super_position = world[x][y].super_position;
 
 				// Look at all the cells around ourself and apply constraints
 				for i in 0..DIMENSIONS {
 					let (safe, pos) = LEGAL_DIRECTION(i, x, y);
 					if safe {
-						let neighbor = &mut self.world[pos.0][pos.1];
-						let constraint = self.possibilities.collect(super_position, i);
+						let neighbor = &mut world[pos.0][pos.1];
+						// let entropy = neighbor.get_entropy();
+						// if !neighbor.is_stable() && entropy < self.lowest_entropy.0 {
+						// 	self.lowest_entropy = (entropy, pos.0, pos.1);
+						// }
+						let constraint = possibilities.collect(super_position, i);
 						neighbor.constrain(constraint);
 						// println!("Constraining ({}, {}):{}", pos.0, pos.1, neighbor.print());
 
@@ -63,6 +94,10 @@ impl Solver {
 						}
 					}
 				}
+				// if stack.len() == 0 {
+				// 	world[self.lowest_entropy.1][self.lowest_entropy.2].collapse_random();
+				// 	stack.push((self.lowest_entropy.1, self.lowest_entropy.2));
+				// }
 			}
 		}
 	}

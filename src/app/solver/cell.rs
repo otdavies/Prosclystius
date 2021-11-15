@@ -1,9 +1,11 @@
+use rand::prelude::*;
 pub struct Cell {
 	// u128 represents all the possible unique states (up to 128) the Cell can be in
 	pub super_position: u128,
 	pub total_variations: u32,
 	pub remaining_variations: u32,
 	pub dirty: bool,
+	random: ThreadRng,
 }
 
 impl Cell {
@@ -15,6 +17,7 @@ impl Cell {
 			total_variations: v,
 			remaining_variations: v,
 			dirty: false,
+			random: rand::thread_rng(),
 		}
 	}
 
@@ -46,7 +49,7 @@ impl Cell {
 	pub fn collapse(&mut self, mut identity: u32) -> bool {
 		let previous_state = self.super_position;
 
-		if self.super_position & 1 << identity < 1 {
+		if self.super_position & (1 << identity) < 1 {
 			println!("Not a legal constraint!");
 			return false;
 		}
@@ -61,7 +64,17 @@ impl Cell {
 		return true;
 	}
 
-	pub fn collapse_random(&mut self) {}
+	pub fn collapse_random(&mut self) {
+		let randomNum: u128 = self.random.gen_range(1..self.super_position).into();
+		for v in 0..self.total_variations {
+			let num = (1 << v);
+			if (self.super_position & num) > 0 {
+				if (num) <= randomNum {
+					self.collapse(v);
+				}
+			}
+		}
+	}
 
 	pub fn print(&self) -> String {
 		let mut result = String::new();
@@ -70,13 +83,18 @@ impl Cell {
 				result.push_str(&v.to_string());
 			}
 		}
+		result.push_str(format!(" [{}]", self.get_entropy()).as_str());
 		return result;
+	}
+
+	pub fn is_stable(&self) -> bool {
+		return self.remaining_variations == 1;
 	}
 
 	// Produce a value between 0 - 1 that represents the entropy of the cell
 	// Near zero implies stability
 	pub fn get_entropy(&self) -> f32 {
-		return self.remaining_variations as f32 / self.total_variations as f32;
+		return (self.remaining_variations as f32 - 1.0) / (self.total_variations as f32 - 1.0);
 	}
 }
 

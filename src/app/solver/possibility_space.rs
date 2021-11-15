@@ -5,12 +5,12 @@ use crate::app::{
 use std::collections::HashMap;
 
 pub struct PossibilitySpace {
-	variations: usize,
+	variations: u32,
 	possibilities: HashMap<u8, Possibility>,
 }
 
 impl PossibilitySpace {
-	pub fn new(example: [[u8; GRID_SIZE]; GRID_SIZE], variations: usize) -> Self {
+	pub fn new(example: &[[u8; GRID_SIZE]; GRID_SIZE], variations: u32) -> Self {
 		Self {
 			variations,
 			possibilities: calculate_possibilities(example, variations),
@@ -48,8 +48,8 @@ impl PossibilitySpace {
 	}
 }
 
-fn calculate_possibilities(example: [[u8; GRID_SIZE]; GRID_SIZE], variation_count: usize) -> HashMap<u8, Possibility> {
-	let mut possibilities: HashMap<u8, Possibility> = HashMap::with_capacity(variation_count + 1);
+fn calculate_possibilities(example: &[[u8; GRID_SIZE]; GRID_SIZE], variation_count: u32) -> HashMap<u8, Possibility> {
+	let mut possibilities: HashMap<u8, Possibility> = HashMap::with_capacity((variation_count + 1) as usize);
 
 	// Accumulate possibilities
 	for x in 0..GRID_SIZE {
@@ -64,7 +64,7 @@ fn calculate_possibilities(example: [[u8; GRID_SIZE]; GRID_SIZE], variation_coun
 			for i in 0..DIMENSIONS {
 				let (safe, (_x, _y)) = LEGAL_DIRECTION(i, x, y);
 				if safe {
-					p.union_value(1 << example[_x][_y], i);
+					p.union(1 << example[_x][_y], i);
 				}
 			}
 		}
