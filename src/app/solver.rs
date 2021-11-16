@@ -1,7 +1,9 @@
 mod cell;
 pub(crate) mod constants;
+mod image_socket_possibilities;
 mod possibility;
 mod possibility_space;
+mod user_defined_possibilities;
 
 use cell::Cell;
 use constants::BOUND_CHECK;
@@ -9,10 +11,11 @@ use constants::DIMENSIONS;
 use constants::GRID_SIZE;
 use constants::LEGAL_DIRECTION;
 use possibility_space::PossibilitySpace;
+use user_defined_possibilities::ExampleBasedPossibilities;
 
 pub struct Solver {
 	pub world: Option<[[Cell; GRID_SIZE]; GRID_SIZE]>,
-	possibilities: Option<PossibilitySpace>,
+	possibilities: Option<Box<PossibilitySpace>>,
 	lowest_entropy: (f32, usize, usize),
 	trained: bool,
 }
@@ -21,7 +24,7 @@ impl Solver {
 	pub fn new() -> Self {
 		Self {
 			world: None,
-			possibilities: None,
+			possibilities: None::<Box<PossibilitySpace>>,
 			lowest_entropy: (1.0, 0, 0),
 			trained: false,
 		}
@@ -29,7 +32,7 @@ impl Solver {
 
 	pub fn train(&mut self, example: &[[u8; GRID_SIZE]; GRID_SIZE], variations: u32) {
 		self.world = Some([0; GRID_SIZE].map(|_| [0; GRID_SIZE].map(|_| Cell::new(variations))));
-		self.possibilities = Some(PossibilitySpace::new(example, variations));
+		self.possibilities = Some(Box::new(ExampleBasedPossibilities::new(example, variations)));
 		self.trained = true;
 	}
 
@@ -80,7 +83,7 @@ impl Solver {
 						// if !neighbor.is_stable() && entropy < self.lowest_entropy.0 {
 						// 	self.lowest_entropy = (entropy, pos.0, pos.1);
 						// }
-						let constraint = possibilities.collect(super_position, i);
+						let constraint = possibilities.constraints(super_position, i);
 						neighbor.constrain(constraint);
 						// println!("Constraining ({}, {}):{}", pos.0, pos.1, neighbor.print());
 
