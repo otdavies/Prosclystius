@@ -6,4 +6,5 @@ This is a little project I worked on to learn some rust programming. It partiall
 An experimental WFC solver for usage with Unity & potentially unreal. Multiple implementations (Rust, Unity c# burst, etc) will be created over the duration of this project. 
 
 # Current WIP UI
-![Screenshot](./github/images/wfc_wip.png?raw=true "UI")
+![image](https://user-images.githubusercontent.com/3145170/226287710-93715f82-4c16-4ff7-aa85-ddfd734dd7a1.png)
+
